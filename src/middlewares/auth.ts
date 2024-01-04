@@ -1,8 +1,7 @@
 import { ValidationChain, body, check, param, query } from "express-validator";
 import User from "../database/model/users.table";
 import { clients } from "../controllers/auth";
-import { Json } from "sequelize/types/utils";
-import { findUserByEmail, findUserByAuthen } from "../models/auth";
+import { findUserByAuthen } from "../models/auth";
 
 const validateReuestBodyCreate: ValidationChain[] = [
     body("username").notEmpty().withMessage("Username is required"),
@@ -33,7 +32,7 @@ const validateReuestBodySignin: ValidationChain[] = [
 
 const validateAuthenticationCode: ValidationChain[] = [
     query("code").custom(async (value, { req }) => {
-        const userData = await findUserByAuthen(value)
+        const userData = await findUserByAuthen(value);
         if (!userData) {
             return Promise.reject("Authentication code in invalid");
         }

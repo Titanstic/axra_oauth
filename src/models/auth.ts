@@ -15,6 +15,7 @@ const findUserByEmail = async (email: string): Promise<User | null> => {
 const findUserByAuthen = async (authenticationCode: string): Promise<User | null> => {
     const user = await User.findOne({ where: { authenticationCode } });
 
+    // for one time use
     if (user) {
         user.set({
             ...user,

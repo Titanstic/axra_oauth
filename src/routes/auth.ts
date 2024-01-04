@@ -8,7 +8,7 @@ const router = Router();
 //  => auth?client_id=Axra123
 router.get("/", AuthController.signinView);
 
-// =>auth/signin
+// =>auth/signin 
 router.post("/signin", validateReuestBodySignin, AuthController.signin);
 
 // =>auth/token

@@ -95,7 +95,7 @@ const signin: RequestHandler = async (req, res) => {
         return res.redirect(`${clients.find(c => c.clientId === client_id)?.redirectUri}?code=${authenticationCode}`);
     }
 
-    res.status(401).json({ message: "Unauthorized", errors: "Invalid client" });
+    res.status(401).json({ message: "Unauthorized", errors: "Invalid User credentials" });
 }
 
 const generateToken: RequestHandler = (req, res) => {
@@ -106,9 +106,10 @@ const generateToken: RequestHandler = (req, res) => {
         return res.status(400).json({ message: "Bad Request", errors: error })
     }
 
-    const { id, email } = req.body as { id: string, email: string };
+    const { email } = req.body as { email: string };
 
-    const payload = { id, email };
+    // generate jwt token
+    const payload = { email };
     const secret = "thewaywetouch";
     const options = { expiresIn: "1h" };
     const token = jwt.sign(payload, secret, options);
