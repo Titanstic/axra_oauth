@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import sequelize from "./database/connection";
 // router
 import AuthRouter from "./routes/auth";
+import logger from "./logger";
 
 const app = express();
 
@@ -28,7 +29,7 @@ app.use((_req, res) => {
 })
 
 // build server
-const port = process.env.PORT || 30001;
+const port = process.env.PORT || 3001;
 app.listen(port, () => {
-    console.log(`[SERVER] : Server is running at ${port}`)
+    logger.info(`Server is running at ${port}`);
 })
