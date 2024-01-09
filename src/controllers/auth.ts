@@ -84,6 +84,7 @@ const signin: RequestHandler = async (req, res) => {
     // check error 
     if (!errors.isEmpty()) {
         const error = errors.array().map(err => err.msg);
+
         logger.error(`${JSON.stringify(error)} : in auth controller(signin)`);
         return res.status(400).json({ message: "Bad Request", errors: error })
     }
@@ -100,7 +101,7 @@ const signin: RequestHandler = async (req, res) => {
         await user.save();
 
         logger.info(`redirect link ${clients.find(c => c.clientId === client_id)?.redirectUri}?code=${authenticationCode} : in auth controller(signin)`);
-        return res.redirect(`${clients.find(c => c.clientId === client_id)?.redirectUri}?code=${authenticationCode}`);
+        return res.status(200).json({ message: "Generate token for Authenticationcode", code: authenticationCode });
     }
 
     logger.error("Invalid User credentials : in auth controller(signin)")
@@ -112,6 +113,7 @@ const generateToken: RequestHandler = (req, res) => {
     // check error 
     if (!errors.isEmpty()) {
         const error = errors.array().map(err => err.msg);
+
         logger.error(`${JSON.stringify(error)} : in auth controller(signin)`);
         return res.status(400).json({ message: "Bad Request", errors: error })
     }

@@ -1,0 +1,36 @@
+# return sing in view with html form
+GET http://localhost:3000/auth?client_id=Axra123 HTTP/1.1
+
+####
+
+# function - create user account for axra 
+# return - created user data
+POST http://localhost:3000/auth/signup HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "axra",
+    "email": "axra@gmail.com",
+    "password": "111111"
+}
+
+####
+
+# function - login user 
+# return - Authentication code for generate token but this code will be one time used. 
+POST http://localhost:3000/auth/signin
+Content-Type: application/json
+
+{
+    "client_id": "Axra123",
+    "email" : "axra@gmail.com",
+    "password" : "111111"
+}
+
+###
+
+#function - generate token 
+#return - token
+@token = 008c6d82f21a598d18162bd23632d6b9
+GET http://localhost:3000/auth/token?code={{token}} HTTP/1.1
+
