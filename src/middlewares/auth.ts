@@ -1,18 +1,17 @@
 import { ValidationChain, body, check, param, query } from "express-validator";
-import User from "../database/model/users.table";
 import { clients } from "../controllers/auth";
 import { findUserByAuthen } from "../models/auth";
 
 const validateReuestBodyCreate: ValidationChain[] = [
     body("username").notEmpty().withMessage("Username is required"),
-    check("email").
-        isEmail().withMessage("Please Enter a valid Email")
-        .custom(async (value, { req }) => {
-            const user = await User.findOne({ where: { email: value } });
-            if (user) {
-                return Promise.reject('E-mails already exists. Please pick another one');
-            }
-        }),
+    check("email").isEmail().withMessage("Please Enter a valid Email"),
+    // .custom(async (value, { req }) => {
+    // const user = await User.findOne({ where: { email: value } });
+    // if (user) {
+    //     return Promise.reject('E-mails already exists. Please pick another one');
+    // }
+    // }),
+    body("phone").notEmpty().withMessage("Phone number is required"),
     body("password").isLength({ min: 6, max: 20 }).withMessage("Password muse be between 6 and 20 characters"),
 ];
 
@@ -33,11 +32,11 @@ const validateReuestBodySignin: ValidationChain[] = [
 const validateAuthenticationCode: ValidationChain[] = [
     query("code").custom(async (value, { req }) => {
         const userData = await findUserByAuthen(value);
-        if (!userData) {
+        if (userData.rows.length === 0) {
             return Promise.reject("Authentication code in invalid");
         }
 
-        req.body = userData.dataValues;
+        req.body = userData.rows[0];
         return true
     })
 ]

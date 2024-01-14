@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
-import { createUser, findUserByEmail } from "../models/auth";
-import User from "../database/model/users.table";
+import { createUser, findUserByEmail, findUserByEmailType, insertAuthCode } from "../models/auth";
 import * as bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
 import crypto from "crypto";
@@ -11,6 +10,7 @@ type RequesBodyCreate = {
     username: string,
     email: string,
     password: string
+    phone: string
 };
 
 type RequestBodyLogin = {
@@ -33,6 +33,7 @@ const signup: RequestHandler = async (req, res, _next) => {
     // check error 
     if (!errors.isEmpty()) {
         const error = errors.array().map(err => err.msg);
+        console.log(error);
         logger.error(`${JSON.stringify(error)} : in auth controller(signup)`);
         return res.status(400).json({ message: "Bad Request", errors: error })
     }
@@ -45,13 +46,13 @@ const signup: RequestHandler = async (req, res, _next) => {
         body.password = await bcrypt.hash(body.password, salt);
 
         // store database
-        const user: User = await createUser(body);
+        const user = await createUser(body);
 
         logger.info(`User account created for ${body.email}`);
-        res.status(200).json({ message: "User account created", data: user })
+        res.status(200).json({ message: "User account created", data: user.rows[0] })
     } catch (err) {
         if (err instanceof Error) {
-            logger.error(`Create user error for ${body.email} in auth controller(signup)`);
+            logger.error(`Create user error for ${err.message} in auth controller(signup)`);
             res.status(500).json({ message: "unexpected error", errors: err.message });
         }
     }
@@ -92,13 +93,13 @@ const signin: RequestHandler = async (req, res) => {
     const { email, password, client_id } = req.body as RequestBodyLogin;
 
     // find user data by email
-    const user: User | null = await findUserByEmail(email);
+    const user: findUserByEmailType | null = await findUserByEmail(email);
+
     if (user && (await bcrypt.compare(password, user.password))) {
+        // generate authentication code for one time use, to get jwt token
         const authenticationCode = crypto.randomBytes(16).toString("hex");
 
-        // update authentication code in user data
-        user.set({ ...user, authenticationCode });
-        await user.save();
+        await insertAuthCode(authenticationCode, email);
 
         logger.info(`redirect link ${clients.find(c => c.clientId === client_id)?.redirectUri}?code=${authenticationCode} : in auth controller(signin)`);
         return res.status(200).json({ message: "Generate token for Authenticationcode", code: authenticationCode });
@@ -118,10 +119,10 @@ const generateToken: RequestHandler = (req, res) => {
         return res.status(400).json({ message: "Bad Request", errors: error })
     }
 
-    const { email } = req.body as { email: string };
+    const { email, id } = req.body as { email: string, id: number };
 
     // generate jwt token
-    const payload = { email };
+    const payload = { email, id };
     const secret = "thewaywetouch";
     const options = { expiresIn: "1h" };
     const token = jwt.sign(payload, secret, options);

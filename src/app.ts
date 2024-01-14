@@ -2,23 +2,24 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
-import sequelize from "./database/connection";
+// import sequelize from "./database/connection";
 // router
 import AuthRouter from "./routes/auth";
 import logger from "./logger";
 
 const app = express();
 
-// db connection
-sequelize.sync({ force: false })
-    .then(() => console.log("db is connected"))
-    .catch((err) => console.log("Unable to connect to database: " + err.message));
+// db connection to sql lite
+// sequelize.sync({ force: false })
+//     .then(() => console.log("db is connected"))
+//     .catch((err) => console.log("Unable to connect to database: " + err.message));
 
 // middleware
 dotenv.config();
 app.use(cors({ credentials: true, origin: true }));
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.json());
+
 
 // =>  /auth
 app.use('/auth', AuthRouter);
