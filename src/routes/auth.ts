@@ -5,6 +5,9 @@ import { validateAuthenticationCode, validateReuestBodyCreate, validateReuestBod
 const router = Router();
 
 // routes
+// => auth/signup
+router.post("/signup", validateReuestBodyCreate, AuthController.signup);
+
 //  => auth?client_id=Axra123
 router.get("/", AuthController.signinView);
 
@@ -13,9 +16,5 @@ router.post("/signin", validateReuestBodySignin, AuthController.signin);
 
 // =>auth/token
 router.get("/token", validateAuthenticationCode, AuthController.generateToken);
-
-// => auth/signup
-router.post("/signup", validateReuestBodyCreate, AuthController.signup);
-
 
 export default router;

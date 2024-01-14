@@ -11,6 +11,7 @@ Content-Type: application/json
 {
     "username": "axra",
     "email": "axra@gmail.com",
+    "phone": "0911111111",
     "password": "111111"
 }
 
@@ -31,6 +32,6 @@ Content-Type: application/json
 
 #function - generate token 
 #return - token
-@token = 008c6d82f21a598d18162bd23632d6b9
+@token = 0193f3abb31b2b788d39ad7a1260c1e4
 GET http://localhost:3000/auth/token?code={{token}} HTTP/1.1
 
