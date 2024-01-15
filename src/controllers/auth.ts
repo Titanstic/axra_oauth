@@ -92,21 +92,28 @@ const signin: RequestHandler = async (req, res) => {
 
     const { email, password, client_id } = req.body as RequestBodyLogin;
 
-    // find user data by email
-    const user: findUserByEmailType | null = await findUserByEmail(email);
+    try {
+        // find user data by email
+        const user: any = await findUserByEmail(email);
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-        // generate authentication code for one time use, to get jwt token
-        const authenticationCode = crypto.randomBytes(16).toString("hex");
+        if (user && (await bcrypt.compare(password, user.password))) {
+            // generate authentication code for one time use, to get jwt token
+            const authenticationCode = crypto.randomBytes(16).toString("hex");
 
-        await insertAuthCode(authenticationCode, email);
+            await insertAuthCode(authenticationCode, email);
 
-        logger.info(`redirect link ${clients.find(c => c.clientId === client_id)?.redirectUri}?code=${authenticationCode} : in auth controller(signin)`);
-        return res.status(200).json({ message: "Generate token for Authenticationcode", code: authenticationCode });
+            logger.info(`redirect link ${clients.find(c => c.clientId === client_id)?.redirectUri}?code=${authenticationCode} : in auth controller(signin)`);
+            return res.status(200).json({ message: "Generate token for Authenticationcode", code: authenticationCode });
+        }
+
+        logger.error("Invalid User credentials : in auth controller(signin)")
+        res.status(401).json({ message: "Unauthorized", errors: "Invalid User credentials" });
+    } catch (err) {
+        if (err instanceof Error) {
+            logger.error(`Sign in for ${err.message} in auth controller(signin)`);
+            res.status(500).json({ message: "unexpected error", errors: err.message });
+        }
     }
-
-    logger.error("Invalid User credentials : in auth controller(signin)")
-    res.status(401).json({ message: "Unauthorized", errors: "Invalid User credentials" });
 }
 
 const generateToken: RequestHandler = (req, res) => {

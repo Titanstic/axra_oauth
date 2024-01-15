@@ -1,16 +1,18 @@
 import { ValidationChain, body, check, param, query } from "express-validator";
 import { clients } from "../controllers/auth";
-import { findUserByAuthen } from "../models/auth";
+import { findUserByAuthen, findUserByEmail } from "../models/auth";
 
 const validateReuestBodyCreate: ValidationChain[] = [
     body("username").notEmpty().withMessage("Username is required"),
-    check("email").isEmail().withMessage("Please Enter a valid Email"),
-    // .custom(async (value, { req }) => {
-    // const user = await User.findOne({ where: { email: value } });
-    // if (user) {
-    //     return Promise.reject('E-mails already exists. Please pick another one');
-    // }
-    // }),
+    check("email").isEmail().withMessage("Please Enter a valid Email")
+        .custom(async (value, { req }) => {
+            const user = await findUserByEmail(value);
+            if (user) {
+                return Promise.reject('E-mails already exists. Please pick another one');
+            }
+
+            return true;
+        }),
     body("phone").notEmpty().withMessage("Phone number is required"),
     body("password").isLength({ min: 6, max: 20 }).withMessage("Password muse be between 6 and 20 characters"),
 ];

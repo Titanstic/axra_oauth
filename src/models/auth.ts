@@ -18,7 +18,7 @@ const createUser = async ({ username, email, phone, password }: Body) => {
     return await poolQuery("INSERT INTO users(name, email, phone, password) VALUES($1, $2, $3, $4) returning id", [username, email, phone, password])
 };
 
-const findUserByEmail = async (email: string): Promise<findUserByEmailType | null> => {
+const findUserByEmail = async (email: string) => {
     try {
         logger.info(`Find user by email ${email} in auth model`);
         const result = await poolQuery("SELECT password FROM users WHERE email = $1", [email]);
