@@ -17,4 +17,7 @@ router.post("/signin", validateReuestBodySignin, AuthController.signin);
 // =>auth/token
 router.get("/token", validateAuthenticationCode, AuthController.generateToken);
 
+// =>auth/refresh
+router.post("/refresh", AuthController.refreshGenerateToken)
+
 export default router;

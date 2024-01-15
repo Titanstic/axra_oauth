@@ -128,14 +128,48 @@ const generateToken: RequestHandler = (req, res) => {
 
     const { email, id } = req.body as { email: string, id: number };
 
-    // generate jwt token
+    // generate access token
     const payload = { email, id };
-    const secret = "thewaywetouch";
+    const secret: any = process.env.ACCESS_TOKEN_SECRET;
     const options = { expiresIn: "1h" };
     const token = jwt.sign(payload, secret, options);
 
-    logger.info(`Generate token for email:  ${email}`)
-    res.status(200).json({ message: "Generate Token", token });
+    // generate refresh token
+    const resfreshSecret: any = process.env.REFRESH_TOKEN_SECRET;
+    const refreshToken = jwt.sign({ email }, resfreshSecret, { expiresIn: "7d" });
+
+    logger.info(`Generate token for email:  ${email}`);
+    res.cookie('jwt', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+    res.status(200).json({ message: "Access Token", token });
+};
+
+const refreshGenerateToken: RequestHandler = (req, res) => {
+    if (req.cookies?.jwt) {
+        const refreshToken = req.cookies.jwt;
+
+        // verify refresh token
+        const refreshAccess: any = process.env.REFRESH_TOKEN_SECRET;
+        jwt.verify(refreshToken, refreshAccess,
+            (err: any, decode: any) => {
+                if (err) {
+                    res.status(406).json({ message: "Unauthorized", error: err.message });
+                } else {
+                    const payload = { email: decode.email };
+                    const secret: any = process.env.ACCESS_TOKEN_SECRET;
+                    const options = { expiresIn: "1h" };
+                    const token = jwt.sign(payload, secret, options);
+
+                    res.status(200).json({ message: "Access Token", token });
+                }
+            }
+        )
+    } else {
+        res.status(406).json({ message: "Unauthorized" });
+    }
 }
 
-export { signup, signinView, signin, generateToken };
+export { signup, signinView, signin, generateToken, refreshGenerateToken };

@@ -14,8 +14,6 @@ const pool: Pool = new Pool({
 
 pool.connect((err, _client, release) => {
     if (err) {
-        console.log(process.env.DATABASE_PASSWORD)
-        console.log(err);
         logger.error('Error acquiring client', err.stack);
         process.exit(-1);
     }

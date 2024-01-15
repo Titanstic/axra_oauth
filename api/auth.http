@@ -32,6 +32,13 @@ Content-Type: application/json
 
 #function - generate token 
 #return - token
-@token = 0e025155d2c47cd8bafb9cacbc458032
+@token = 7542e13a74fd18abc912807c6acc3eef
 GET http://localhost:3000/auth/token?code={{token}} HTTP/1.1
+
+####
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImF4cmFAZ21haWwuY29tIiwiaWF0IjoxNzA1MzI4MjIxLCJleHAiOjE3MDU5MzMwMjF9.4ceZjVhTbTX4JUjVbG5bm8v25AQdAD362VEf_1nKMRk
+
+POST http://localhost:3000/auth/refresh HTTP/1.1
+Cookie: jwt={{refreshToken}}
+
 
